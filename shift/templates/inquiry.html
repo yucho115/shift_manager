@@ -6,7 +6,7 @@
 
 {% block contents%}
 <div class="container d-flex justify-content-center">
-    <div class="my-div-style col-12 col-md-7">
+    <div class="{% if not messages %}my-div-style{% endif %} col-12 col-md-7">
         <form method="post">
             {% csrf_token %}
 
