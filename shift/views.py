@@ -15,6 +15,7 @@ class IndexView(generic.TemplateView):
 class InquiryView(generic.FormView):
     template_name = "inquiry.html"
     form_class = InquiryForm
+    success_url = reverse_lazy('shift:inquiry')
 
     def form_valid(self, form):
         form.send_email()
