@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}トップページ | Shift Manager{% endblock %}
+
+{% block header %}
+<header class="bg-primary bg-gradient text-white">
+    <div class="container px-4 text-center">
+        <h1 class="fw-bolder">Shift Manager</h1>
+        <h2 class="lead">あなたのシフト管理サービス</h2>
+        <a class="btn btn-lg btn-light" href="#">Log In</a>
+    </div>
+</header>
+{% endblock %}
+
+{% block contents %}
+<section id="about">
+    <div class="container px-4">
+        <div class="row gx-4 justify-content-center">
+            <div class="col-lg-8">
+                <h2>About this page</h2>
+                <h3>本アプリは、アルバイトやスタッフのシフト管理を効率化するために開発したWebアプリケーションです。</h3>
+                <p class="lead">従来の紙・LINE・Excel でのシフト提出では、提出漏れや入力ミス、修正時の手間が問題になりがちでした。本アプリでは、これらの課題を解決し、スムーズな勤務調整を可能にします。</p>
+                <ul>
+                    <li>シフト提出機能
+                        <p>スタッフは Web 上からいつでも希望シフトを提出できます。</p>
+                    </li>
+                    <li>シフト一覧管理
+                        <p>管理者は提出されたシフトをひと目で確認でき、勤務状況を直感的に把握できます。</p>
+                    </li>
+                    <li>アカウント管理（ログイン・ログアウト）
+                        <p>Django のカスタムユーザーを用いて、ユーザーごとに適切な権限で利用できます。</p>
+                    </li>
+                    <li>わかりやすいUI
+                        <p>Bootstrap を利用し、スマホ・PC のどちらからでも使いやすい画面デザインを実現しています。</p>
+                    </li>
+                </ul>
+                <p>本アプリは「実際の現場で使えるシフト管理」をコンセプトとして設計されており、アルバイト先や店舗運営における業務効率化を目的としています。</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
