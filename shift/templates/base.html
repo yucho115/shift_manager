@@ -24,7 +24,7 @@
                     <ul class="navbar-nav me-auto">
                         {% if user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link {% block active_shift %}{% endblock %}" href="#">Shift</a></li>
-                            <li class="nav-item"><a class="nav-link {% block active_invite %}{% endblock %}" href="#">Invite</a></li>
+                            <li class="nav-item"><a class="nav-link {% block active_invite %}{% endblock %}" href="{% url 'shift:invite' %}">Invite</a></li>
                         {% else %}
                             <li class="nav-item">
                                 <a class="nav-link {% block active_Inquiry %}{% endblock %}" href="{% url 'shift:inquiry' %}">Inquiry</a>
