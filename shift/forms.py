@@ -32,8 +32,8 @@ class InquiryForm(forms.Form):
         subject = 'お問い合わせ: {}'.format(title)
         message = '送信者: {0}\nメールアドレス: {1}\nメッセージ: {2}'.format(name,email,message)
 
-        from_email = os.environ.get('FROM_EMAIL')
-        to_list = [email]
+        from_email = email
+        to_list = [os.environ.get('FROM_EMAIL')]
 
         message = EmailMessage(subject=subject, body=message, from_email=from_email, to=to_list)
         message.send()
