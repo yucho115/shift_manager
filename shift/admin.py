@@ -1,6 +1,6 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Username
+from .models import Invite
 
-admin.site.register(Username)
+admin.site.register(Invite)
