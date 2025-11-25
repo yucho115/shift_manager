@@ -1,7 +1,7 @@
 import os
 from django import forms
 from django.core.mail import EmailMessage
-from .models import Username
+from .models import Invite
 
 class InquiryForm(forms.Form):
     name = forms.CharField(label='お名前',max_length=30)
@@ -41,7 +41,7 @@ class InquiryForm(forms.Form):
 
 class InviteForm(forms.ModelForm):
     class Meta:
-        model = Username
+        model = Invite
         fields = ('email','username')
 
     def __init__(self, *args,**kwargs):
@@ -53,11 +53,11 @@ class InviteForm(forms.ModelForm):
             elif name == 'username':
                 field.widget.attrs['placeholder'] = '送信相手の名前をここに入力してください。'
 
-    def send_email(self):
+    def send_email(self, url):
         email = self.cleaned_data['email']
 
         subject = 'Shift Managerへの招待'
-        message = '招待が届きました。ユーザー登録は以下のリンクから'
+        message = '招待が届きました。ユーザー登録は以下のリンクから\n{}'.format(url)
 
         from_email = os.environ.get('FROM_EMAIL')
         to_list = [email]
