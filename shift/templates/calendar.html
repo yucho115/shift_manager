@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendar | Shift Manager{% endblock %}
+
+{% block active_shift %}active{% endblock %}
+
+{% block contents %}
+<div class="container my-div-style">
+    <div class="row">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-outline-primary" id="prior">＜</button>
+            <span id="monthYear"></span>
+            <button class="btn btn-outline-primary" id="later">＞</button>
+        </div>
+        <table class="table text-center">
+            <thead>
+                <tr id="day">
+                    <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+                </tr>
+            </thead>
+            <tbody id = "calendar-body">
+            </tbody>
+        </table>
+    </div>
+    <div class="row" id="time-buttons" style="display: none;">
+        <div id="time">
+            <strong id="monthYearTime"></strong>
+            <div id="time-table">
+                <table class="table text-center" id="time-chart">
+                    <thead>
+                    </thead>
+                    <tbody id="time-manage">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <form class="text-center" id="form">
+        {% csrf_token %}
+        <input class="btn btn-primary" type="submit" value="提出">
+    </form>
+</div>
+
+<script>
+    const pad = n => n.toString().padStart(2,'0');
+
+    const today = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+
+    function renderCalendar(y,m){
+        document.getElementById("monthYear").textContent = y + "年 " + (m + 1) + "月";
+
+        const firstDay = new Date(y, m, 1).getDay();
+        const lastDay = new Date(y, m + 1, 0).getDate();
+
+        const calendarBody = document.getElementById("calendar-body");
+        calendarBody.innerHTML = "";
+        let row = document.createElement("tr");
+
+        for(let i = 0; i < firstDay; i++){
+            row.appendChild(document.createElement("td"));
+        }
+
+        for(let date = 1;date <= lastDay; date++){
+            let cell = document.createElement("td");
+            let button = document.createElement("button");
+            button.className = "btn btn-white w-100"
+            button.id = y + "-" + pad(m+1) + "-" + pad(date);
+            button.textContent = date;
+
+            //const prefix = y + "-" + pad((m+1)) + "-" + pad(date);
+
+            cell.appendChild(button);
+
+            row.appendChild(cell);
+            if((firstDay + date) % 7 === 0){
+                calendarBody.appendChild(row);
+                row = document.createElement("tr");
+            }
+        }
+
+        if(row.children.length > 0){
+            calendarBody.appendChild(row);
+        }
+    }
+
+    const primonth = document.getElementById("prior");
+    const latmonth = document.getElementById("later");
+
+    primonth.addEventListener("click", () =>{
+        currentMonth--;
+        if(currentMonth < 0){
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    latmonth.addEventListener("click", () => {
+        currentMonth++;
+        if(currentMonth > 11){
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    renderCalendar(currentYear, currentMonth);
+
+    let selectedDateButton = null;
+    let timeSelected = false;
+    document.getElementById("calendar-body").addEventListener("click", (e) => {
+        if(e.target.tagName === "BUTTON") {
+            document.getElementById("time-buttons").style.display = "block";
+            const clickedId = e.target.id;
+            const clickedButton = document.getElementById(clickedId);
+
+            if(selectedDateButton && selectedDateButton !== clickedButton){
+                if(!timeSelected){
+                    selectedDateButton.classList.remove("btn-primary");
+                }
+            }
+
+            clickedButton.className = "btn btn-primary w-100";
+            selectedDateButton = clickedButton;
+
+            timeSelected = false;
+
+            /*
+            document.getElementById("time").classList.add("time-clicked");
+            document.getElementById("time-table").classList.add("time-table-clicked");
+            document.getElementById("time-chart").classList.add("time-chart-clicked");
+            */
+
+            const date = document.getElementById("monthYearTime");
+            date.textContent = clickedId;
+
+            const timeTable = document.getElementById("time-manage");
+            timeTable.innerHTML = "";
+            for(let i = 0; i < 12; i++){
+                let row = document.createElement("tr");
+                for(let j = 0; j < 2 ; j++){
+                    let cell = document.createElement("td");
+                    let button = document.createElement("button");
+                    button.className = "btn w-100"
+                    button.id = clickedId + "_" + pad((2*i+j)) + ":00";
+                    button.textContent = (2*i+j) + ":00";                   
+
+                    /*
+                    const shiftKey = year + "-" + pad(parseInt(month)+1) + "-" + pad(day) + "-" + String(2*i+j);
+                    if(shiftFalse.includes(shiftKey)){
+                        button.style.backgroundColor = "red";
+                    }
+                    */
+
+                    cell.appendChild(button);
+                    row.appendChild(cell);
+                }
+                timeTable.appendChild(row);
+            }
+
+            const inputs = document.querySelectorAll("form input[type='hidden']");
+            inputs.forEach(input => {
+                const [savedDate, savedHour] = input.value.split("_");
+
+                if(savedDate === clickedId){
+                    const savedButton = document.getElementById(savedDate + "_" + savedHour);
+                    if(savedButton){
+                        savedButton.classList.add("btn-primary");
+                        timeSelected = true;
+                    }
+                }
+            }); 
+        }
+    });
+
+    document.getElementById("time-manage").addEventListener("click", (e) => {
+        if(e.target.tagName === "BUTTON") {
+            const clickedId = e.target.id;
+            const datebutton = document.getElementById(clickedId)
+
+            datebutton.classList.toggle("btn-primary");
+
+            const [name, hour] = clickedId.split("_");
+            const date = document.getElementById(name);
+            date.className = "btn btn-primary w-100";
+
+            const form = document.getElementById("form");
+
+            if(datebutton.classList.contains("btn-primary")){
+                timeSelected = true;
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.value = name + "_" + hour;
+                input.name = "shift";
+                input.id = "input_" + clickedId;
+                form.appendChild(input);
+            } else {
+                const oldInput = document.getElementById("input_" + clickedId);
+                timeSelected = false;
+                if(oldInput){
+                    form.removeChild(oldInput);
+                }
+
+            }
+        }
+    });
+</script>
+{% endblock %}
