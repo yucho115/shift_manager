@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from shift_manager import settings_dev
 
 # Create your models here.
 class Invite(models.Model):
@@ -13,3 +14,10 @@ class Invite(models.Model):
 
     class Meta:
         verbose_name_plural = 'Invite'
+
+class Shift(models.Model):
+
+    user = models.ForeignKey(settings_dev.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+    is_sure = models.BooleanField(default=False)

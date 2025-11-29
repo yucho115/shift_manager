@@ -1,7 +1,7 @@
 import os
 from django import forms
 from django.core.mail import EmailMessage
-from .models import Invite
+from .models import Invite, Shift
 
 class InquiryForm(forms.Form):
     name = forms.CharField(label='お名前',max_length=30)
@@ -64,3 +64,8 @@ class InviteForm(forms.ModelForm):
 
         message = EmailMessage(subject=subject, body=message, from_email=from_email, to=to_list)
         message.send()
+
+class ShiftCreateForm(forms.ModelForm):
+    class Meta:
+        model = Shift
+        fields = ['date', 'time']
