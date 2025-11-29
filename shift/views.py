@@ -37,6 +37,7 @@ class InviteView(generic.CreateView):
     success_url = reverse_lazy('shift:invite')
 
     def form_valid(self, form):
+        form.instance.employer = self.request.user
         response = super().form_valid(form)
 
         invite = self.object

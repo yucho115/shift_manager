@@ -19,6 +19,11 @@ class WorkerSignupView(SignupView):
 
         return super().dispatch(request, *args, **kwargs)
     
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["invite"] = self.invite
+        return kwargs
+    
     def form_valid(self, form):
         response = super().form_valid(form)
 

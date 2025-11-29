@@ -7,6 +7,7 @@ class Invite(models.Model):
     """メールアドレスとユーザー名の対応モデル"""
 
     token = models.UUIDField(default=uuid.uuid4, unique=True)
+    employer = models.ForeignKey(settings_dev.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='sent_invites')
     email = models.EmailField(verbose_name='メールアドレス', max_length=254)
     username = models.CharField(verbose_name='ユーザー名', max_length=20)
     is_used = models.BooleanField(default=False)
