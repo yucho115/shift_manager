@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.contrib.auth.models import AbstractUser
+import uuid
 
 class CustomUser(AbstractUser):
     class Meta:
@@ -16,3 +17,5 @@ class CustomUser(AbstractUser):
         choices=Role.choices,
         default=Role.EMPLOYER,
     )
+
+    store_id = models.UUIDField(default=uuid.uuid4, editable=False)

@@ -37,13 +37,14 @@
         </div>
     </div>
     
-    <form class="text-center" id="form">
+    <form class="text-center" id="form" method="post">
         {% csrf_token %}
         <input class="btn btn-primary" type="submit" value="提出">
     </form>
 </div>
 
 <script>
+    const savedShifts_false = {{ shift_list_json_false|safe }}; 
     const pad = n => n.toString().padStart(2,'0');
 
     const today = new Date();
@@ -67,8 +68,11 @@
         for(let date = 1;date <= lastDay; date++){
             let cell = document.createElement("td");
             let button = document.createElement("button");
-            button.className = "btn btn-white w-100"
+            button.className = "btn w-100"
             button.id = y + "-" + pad(m+1) + "-" + pad(date);
+            if(savedShifts_false.some(s => s.date === button.id)){
+                button.classList.add("btn-info");
+            }
             button.textContent = date;
 
             //const prefix = y + "-" + pad((m+1)) + "-" + pad(date);
@@ -121,10 +125,14 @@
             if(selectedDateButton && selectedDateButton !== clickedButton){
                 if(!timeSelected){
                     selectedDateButton.classList.remove("btn-primary");
+                    if(savedShifts_false.some(s => s.date === selectedDateButton.id)){
+                        selectedDateButton.classList.add("btn-info");
+                    }
                 }
             }
 
-            clickedButton.className = "btn btn-primary w-100";
+            clickedButton.classList.remove("btn-info");
+            clickedButton.classList.add("btn-primary");
             selectedDateButton = clickedButton;
 
             timeSelected = false;
@@ -147,6 +155,9 @@
                     let button = document.createElement("button");
                     button.className = "btn w-100"
                     button.id = clickedId + "_" + pad((2*i+j)) + ":00";
+                    if(savedShifts_false.some(s => s.date === clickedId && s.time === pad((2*i+j)) + ":00")){
+                        button.classList.add("btn-info");
+                    }
                     button.textContent = (2*i+j) + ":00";                   
 
                     /*
@@ -186,7 +197,8 @@
 
             const [name, hour] = clickedId.split("_");
             const date = document.getElementById(name);
-            date.className = "btn btn-primary w-100";
+            //date.className = "btn btn-primary w-100";
+            date.classList.add("btn-primary");
 
             const form = document.getElementById("form");
 

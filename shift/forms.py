@@ -64,8 +64,3 @@ class InviteForm(forms.ModelForm):
 
         message = EmailMessage(subject=subject, body=message, from_email=from_email, to=to_list)
         message.send()
-
-class ShiftCreateForm(forms.ModelForm):
-    class Meta:
-        model = Shift
-        fields = ['date', 'time']
