@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 import logging
 from django.views import generic
-from .forms import InquiryForm, InviteForm, ShiftCreateForm
+from .forms import InquiryForm, InviteForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from .models import Invite, Shift
@@ -47,11 +47,10 @@ class InviteView(generic.CreateView):
         messages.success(self.request,'招待メッセージを送信しました。')
         return response
     
-class ShiftCalendarView(FormMixin, DetailView):
+class ShiftCalendarView(DetailView):
     model = CustomUser
     template_name = "calendar.html"
     context_object_name = "target_user"
-    form_class = ShiftCreateForm
 
     def get_success_url(self):
         return reverse("shift:calendar", kwargs={"pk": self.object.pk})
@@ -60,20 +59,21 @@ class ShiftCalendarView(FormMixin, DetailView):
         context = super().get_context_data(**kwargs)
         target_user = self.object
         context['shifts'] = Shift.objects.filter(user=target_user)
-        context['form'] = self.get_form()
         return context
     
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        form = self.get_form()
+        user = self.object
 
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-        
-    def form_valid(self, form):
-        new_shift = form.save(commit=False)
-        new_shift.user = self.object
-        new_shift.save()
+        shift_list = request.POST.getlist("shift")
+
+        for sh in shift_list:
+            date_str, time_str = sh.split("_")
+            Shift.objects.create(
+                user=user,
+                date = date_str,
+                time = time_str
+            )
+
+        messages.success(request, "シフトを登録しました！")
         return redirect(self.get_success_url())
