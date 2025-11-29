@@ -11,6 +11,8 @@ from accounts.models import CustomUser
 from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,15 @@ class ShiftCalendarView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         target_user = self.object
-        context['shifts'] = Shift.objects.filter(user=target_user)
+        shifts = Shift.objects.filter(user=target_user, is_sure=False)
+
+        context["shift_list_json_false"] = json.dumps([
+            {
+                "date": s.date.strftime("%Y-%m-%d"),
+                "time": s.time.strftime("%H:%M")
+            }
+            for s in shifts
+        ],cls=DjangoJSONEncoder)
         return context
     
     def post(self, request, *args, **kwargs):
