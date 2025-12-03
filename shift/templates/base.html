@@ -23,7 +23,11 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav me-auto">
                         {% if user.is_authenticated %}
+                            {% if user.role == 'worker' %}
                             <li class="nav-item"><a class="nav-link {% block active_shift %}{% endblock %}" href="{% url 'shift:calendar' request.user.pk %}">Shift</a></li>
+                            {% else %}
+                            <li class="nav-item"><a class="nav-link {% block active_shift_manage %}{% endblock %}" href="{% url 'shift:manage-calendar' request.user.pk %}">Shift</a></li>
+                            {% endif %}
                             {% if user.role == 'employer' %}
                                 <li class="nav-item"><a class="nav-link {% block active_invite %}{% endblock %}" href="{% url 'shift:invite' %}">Invite</a></li>
                             {% endif %}

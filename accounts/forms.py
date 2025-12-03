@@ -10,6 +10,7 @@ class WorkerSignupForm(SignupForm):
         user.role = 'worker'
 
         if self.invite:
+            user.username = self.invite.username
             user.store_id = self.invite.employer.store_id
 
         user.save()

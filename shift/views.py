@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 import logging
-from django.views import generic
+from django.views import generic, View
 from .forms import InquiryForm, InviteForm
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -70,6 +70,16 @@ class ShiftCalendarView(DetailView):
             }
             for s in shifts
         ],cls=DjangoJSONEncoder)
+
+        shifts_true = Shift.objects.filter(user=target_user, is_sure=True)
+        context["shift_list_json_true"] = json.dumps([
+            {
+                "date": s.date.strftime("%Y-%m-%d"),
+                "time": s.time.strftime("%H:%M")
+            }
+            for s in shifts_true
+        ], cls=DjangoJSONEncoder)
+
         return context
     
     def post(self, request, *args, **kwargs):
@@ -87,4 +97,77 @@ class ShiftCalendarView(DetailView):
             )
 
         messages.success(request, "シフトを登録しました！")
+        return redirect(self.get_success_url())
+    
+class ManageCalendarView(DetailView):
+    #そもそも店舗のシフトを全部DBから毎回取り出すという設計はよいのか？
+    model = CustomUser
+    template_name = "manage_calendar.html"
+
+    def get_success_url(self):
+        return reverse("shift:manage-calendar",kwargs={"pk":self.object.pk})
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+
+        employer = self.object
+
+        #Falseのシフトは以降次週月曜以降のFalseのシフトを集めるようにしたい
+        shifts = Shift.objects.filter(
+            user__store_id = employer.store_id,
+            user__role = 'worker',
+            is_sure = False,
+        ).order_by('user','date','time')
+
+        context["shift_list_json_false"] = json.dumps([
+            {
+                "worker": s.user.username,
+                "date": s.date.strftime("%Y-%m-%d"),
+                "time": s.time.strftime("%H:%M")
+            }
+            for s in shifts
+        ], cls=DjangoJSONEncoder)
+
+        shifts_true = Shift.objects.filter(
+            user__store_id = employer.store_id,
+            user__role = 'worker',
+            is_sure = True,
+        ).order_by('user','date','time')
+
+        context["shift_list_json_true"] = json.dumps([
+            {
+                "worker": s.user.username,
+                "date": s.date.strftime("%Y-%m-%d"),
+                "time": s.time.strftime("%H:%M")
+            }
+            for s in shifts_true
+        ], cls=DjangoJSONEncoder)
+
+        workers = CustomUser.objects.filter(
+            store_id = employer.store_id,
+            role = 'worker',
+        )
+
+        context["worker"] = json.dumps([
+            {
+                "username": s.username
+            }
+            for s in workers
+        ], cls=DjangoJSONEncoder)
+
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        shift_list = request.POST.getlist("shift")
+
+        for sh in shift_list:
+            worker, date, time = sh.split("_")
+            Shift.objects.filter(
+                user__username = worker,
+                date = date,
+                time = time,
+            ).update(is_sure=True)
+
+        messages.success(request, "シフトを確定しました！")
         return redirect(self.get_success_url())

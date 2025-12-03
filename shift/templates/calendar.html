@@ -44,7 +44,8 @@
 </div>
 
 <script>
-    const savedShifts_false = {{ shift_list_json_false|safe }}; 
+    const savedShifts_false = JSON.parse('{{ shift_list_json_false|safe }}'); 
+    const savedShifts_True = JSON.parse('{{ shift_list_json_true|safe }}');
     const pad = n => n.toString().padStart(2,'0');
 
     const today = new Date();
@@ -70,7 +71,9 @@
             let button = document.createElement("button");
             button.className = "btn w-100"
             button.id = y + "-" + pad(m+1) + "-" + pad(date);
-            if(savedShifts_false.some(s => s.date === button.id)){
+            if(savedShifts_True.some(s => s.date === button.id)){
+                button.classList.add("btn-warning");
+            }else if(savedShifts_false.some(s => s.date === button.id)){
                 button.classList.add("btn-info");
             }
             button.textContent = date;
@@ -155,7 +158,9 @@
                     let button = document.createElement("button");
                     button.className = "btn w-100"
                     button.id = clickedId + "_" + pad((2*i+j)) + ":00";
-                    if(savedShifts_false.some(s => s.date === clickedId && s.time === pad((2*i+j)) + ":00")){
+                    if(savedShifts_True.some(s => s.date === clickedId && s.time === pad((2*i+j)) + ":00")){
+                        button.classList.add("btn-warning");
+                    }else if(savedShifts_false.some(s => s.date === clickedId && s.time === pad((2*i+j)) + ":00")){
                         button.classList.add("btn-info");
                     }
                     button.textContent = (2*i+j) + ":00";                   
